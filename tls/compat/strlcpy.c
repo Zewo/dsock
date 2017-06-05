@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <string.h>
 
+#ifndef strlcpy
 /*
  * Copy string src to buffer dst of size dsize.  At most dsize-1
  * chars will be copied.  Always NUL terminates (unless dsize == 0).
@@ -48,3 +49,4 @@ strlcpy(char *dst, const char *src, size_t dsize)
 
 	return(src - osrc - 1);	/* count does not include NUL */
 }
+#endif

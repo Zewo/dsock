@@ -37,8 +37,8 @@ int main() {
     rc = bsend(n, "123456789", 9, -1);
     assert(rc == 0);
     char buf[9];
-    rc = brecv(s[1], buf, 9, -1);
-    assert(rc == 0);
+    ssize_t sz = brecv(s[1], buf, 9, -1);
+    assert(sz == 9);
     rc = hclose(s[1]);
     assert(rc == 0);
     rc = hclose(n);
@@ -53,8 +53,8 @@ int main() {
     assert(rc == 0);
     rc = bsend(n, "34567", 5, -1);
     assert(rc == 0);
-    rc = brecv(s[1], buf, 7, -1);
-    assert(rc == 0);
+    sz = brecv(s[1], buf, 7, -1);
+    assert(sz == 7);
     rc = hclose(s[1]);
     assert(rc == 0);
     rc = hclose(n);
@@ -67,8 +67,8 @@ int main() {
     assert(n >= 0);
     rc = bsend(n, "12", 2, -1);
     assert(rc == 0);
-    rc = brecv(s[1], buf, 2, now() + 100);
-    assert(rc < 0 && errno == ETIMEDOUT);
+    sz = brecv(s[1], buf, 2, now() + 100);
+    assert(sz < 0 && errno == ETIMEDOUT);
     rc = hclose(s[1]);
     assert(rc == 0);
     rc = hclose(n);
@@ -81,8 +81,8 @@ int main() {
     assert(n >= 0);
     rc = bsend(n, "12", 2, -1);
     assert(rc == 0);
-    rc = brecv(s[1], buf, 2, -1);
-    assert(rc == 0);
+    sz = brecv(s[1], buf, 2, -1);
+    assert(sz == 2);
     rc = hclose(s[1]);
     assert(rc == 0);
     rc = hclose(n);

@@ -37,7 +37,7 @@ static void *bthrottler_hquery(struct hvfs *hvfs, const void *type);
 static void bthrottler_hclose(struct hvfs *hvfs);
 static int bthrottler_bsendl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
-static int bthrottler_brecvl(struct bsock_vfs *bvfs,
+static ssize_t bthrottler_brecvl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
 
 struct bthrottler_sock {
@@ -157,7 +157,7 @@ static int bthrottler_bsendl(struct bsock_vfs *bvfs,
     }
 }
 
-static int bthrottler_brecvl(struct bsock_vfs *bvfs,
+static ssize_t bthrottler_brecvl(struct bsock_vfs *bvfs,
       struct iolist *first, struct iolist *last, int64_t deadline) {
     struct bthrottler_sock *obj =
         dsock_cont(bvfs, struct bthrottler_sock, bvfs);

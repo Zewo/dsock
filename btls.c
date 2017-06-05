@@ -22,8 +22,6 @@
 
 */
 
-#if defined HAVE_TLS
-
 #include <errno.h>
 #include <libdillimpl.h>
 #include <stdint.h>
@@ -67,7 +65,7 @@ static void *btls_conn_hquery(struct hvfs *hvfs, const void *type);
 static void btls_conn_hclose(struct hvfs *hvfs);
 static int btls_conn_bsendl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
-static int btls_conn_brecvl(struct bsock_vfs *bvfs,
+static ssize_t btls_conn_brecvl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
 
 struct btls_conn {
@@ -81,7 +79,7 @@ struct btls_conn {
 };
 
 static int btls_conn_handshake(struct btls_conn *obj, int64_t deadline);
-static int btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
+static ssize_t btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
     int64_t deadline);
 
 static int btls_wait_close(struct tls *tls, int fd, int64_t deadline) {
@@ -184,10 +182,11 @@ static int btls_conn_bsendl(struct bsock_vfs *bvfs, struct iolist *first,
     return 0;
 }
 
-static int btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
+static ssize_t btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
       int64_t deadline) {
     size_t pos = 0;
     struct btls_rxbuf *rxbuf = &obj->rxbuf;
+    size_t read = 0;
     while(1) {
         /* Use data from rxbuf. */
         size_t remaining = rxbuf->len - rxbuf->pos;
@@ -196,13 +195,15 @@ static int btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
         rxbuf->pos += tocopy;
         pos += tocopy;
         len -= tocopy;
-        if(!len) return 0;
+        read += tocopy;
+        if(read) return read;
         /* If requested amount of data is large avoid the copy
            and read it directly into user's buffer. */
         if(len >= sizeof(rxbuf->data)) {
-            ssize_t sz = btls_conn_get(obj, buf + pos, len, 1, deadline);
+            ssize_t sz = btls_conn_get(obj, buf + pos, len, 0, deadline);
             if(dsock_slow(sz < 0)) return -1;
-            return 0;
+            read += sz;
+            return read;
         }
         /* Read as much data as possible into rxbuf. */
         dsock_assert(rxbuf->len == rxbuf->pos);
@@ -214,17 +215,19 @@ static int btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
     }
 }
 
-static int btls_conn_brecvl(struct bsock_vfs *bvfs,
+static ssize_t btls_conn_brecvl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline) {
     struct btls_conn *obj = dsock_cont(bvfs, struct btls_conn, bvfs);
     int rc = iol_check(first, last, NULL, NULL);
     if(dsock_slow(rc < 0)) return -1;
     struct iolist *it;
+    ssize_t read = 0;
     for(it = first; it; it = it->iol_next) {
         rc = btls_conn_brecv(obj, it->iol_base, it->iol_len, deadline);
         if(dsock_slow(rc < 0)) return -1;
+        read += rc;
     }
-    return 0;
+    return read;
 }
 
 static int btls_conn_create(int s, struct tls *t, struct tls_config *c,
@@ -733,6 +736,3 @@ static struct tls_config *btls_configure(uint64_t flags, uint64_t ciphers,
 err:
     return NULL;
 }
-
-#endif
-

@@ -20,7 +20,7 @@
 
 #include <openssl/x509.h>
 
-#include <tls.h>
+#include "tls.h"
 #include "tls_internal.h"
 
 void *
@@ -66,12 +66,12 @@ tls_get_peer_cert_hash(struct tls *ctx, char **hash)
 	if (ctx->ssl_peer_cert == NULL)
 		return (0);
 
-	if (X509_digest(ctx->ssl_peer_cert, EVP_sha256(), d, &dlen) != 1) {
+	if (X509_digest(ctx->ssl_peer_cert, EVP_sha256(), (unsigned char *)d, (unsigned int *)&dlen) != 1) {
 		tls_set_errorx(ctx, "digest failed");
 		goto err;
 	}
 
-	if (tls_hex_string(d, dlen, &dhex, NULL) != 0) {
+	if (tls_hex_string((const unsigned char*)d, dlen, &dhex, NULL) != 0) {
 		tls_set_errorx(ctx, "digest hex string failed");
 		goto err;
 	}
@@ -139,9 +139,9 @@ tls_get_peer_cert_times(struct tls *ctx, time_t *notbefore,
 		goto err;
 	if ((after = X509_get_notAfter(ctx->ssl_peer_cert)) == NULL)
 		goto err;
-	if (asn1_time_parse(before->data, before->length, &before_tm, 0) == -1)
+	if (asn1_time_parse((const char *)before->data, before->length, &before_tm, 0) == -1)
 		goto err;
-	if (asn1_time_parse(after->data, after->length, &after_tm, 0) == -1)
+	if (asn1_time_parse((const char *)after->data, after->length, &after_tm, 0) == -1)
 		goto err;
 	if ((*notbefore = timegm(&before_tm)) == -1)
 		goto err;
