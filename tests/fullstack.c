@@ -83,7 +83,6 @@ int main() {
 //    assert(sz == -1);
 //    assert(buf[0] == 'G' && buf[1] == 'H' && buf[2] == 'I');
 
-
     rc = hclose(h8_1);
     assert(rc == 0);
     rc = hclose(h8_0);
