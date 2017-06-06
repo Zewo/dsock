@@ -118,7 +118,7 @@ int main() {
     printf("sending\n");
     rc = bsend(tas, "ABC", 3, -1);
     assert(rc == 0);
-    sz = brecv(tas, buf, 2, -1);
+    sz = brecv(tas, buf, 3, -1);
     assert(sz == 3);
     sz = brecv(tas, buf, sizeof(buf), -1);
     assert(sz == -1 && errno == ECONNRESET);
