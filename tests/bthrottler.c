@@ -40,8 +40,8 @@ int main() {
     assert(rc == 0);
     int64_t elapsed = now() - start;
     assert(elapsed > 90 && elapsed < 120);
-    rc = brecv(s[1], buf, 95, -1);
-    assert(rc == 0);
+    ssize_t sz = brecv(s[1], buf, 95, -1);
+    assert(sz > 0);
     hclose(thr);
     hclose(s[1]);
 
@@ -58,8 +58,8 @@ int main() {
     }
     elapsed = now() - start;
     assert(elapsed > 140 && elapsed < 175);
-    rc = brecv(s[1], buf, 150, -1);
-    assert(rc == 0);
+    sz = brecv(s[1], buf, 150, -1);
+    assert(sz > 0);
     hclose(thr);
     hclose(s[1]);
 
@@ -71,8 +71,8 @@ int main() {
     rc = bsend(s[1], buf, 95, -1);
     assert(rc == 0);
     start = now();
-    rc = brecv(thr, buf, 95, -1);
-    assert(rc == 0);
+    sz = brecv(thr, buf, 95, -1);
+    assert(sz == 0);
     elapsed = now() - start;
     assert(elapsed > 90 && elapsed < 120);
     hclose(thr);
@@ -87,8 +87,8 @@ int main() {
     assert(rc == 0);
     start = now();
     for(i = 0; i != 50; ++i) {
-        rc = brecv(thr, buf, 3, -1);
-        assert(rc == 0);
+        sz = brecv(thr, buf, 3, -1);
+        assert(sz == 0);
     }
     elapsed = now() - start;
     assert(elapsed > 140 && elapsed < 175);

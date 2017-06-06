@@ -38,7 +38,7 @@ static void *nagle_hquery(struct hvfs *hvfs, const void *type);
 static void nagle_hclose(struct hvfs *hvfs);
 static int nagle_bsendl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
-static int nagle_brecvl(struct bsock_vfs *bvfs,
+static ssize_t nagle_brecvl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
 static coroutine void nagle_sender(int s, size_t batch, int64_t interval,
     uint8_t *buf, int sendch, int ackch);
@@ -215,7 +215,7 @@ static coroutine void nagle_sender(int s, size_t batch, int64_t interval,
     }
 }
 
-static int nagle_brecvl(struct bsock_vfs *bvfs,
+static ssize_t nagle_brecvl(struct bsock_vfs *bvfs,
       struct iolist *first, struct iolist *last, int64_t deadline) {
     struct nagle_sock *obj = dsock_cont(bvfs, struct nagle_sock, bvfs);
     return brecvl(obj->s, first, last, deadline);

@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <tls.h>
+#include "tls.h"
 #include "tls_internal.h"
 
 static int
@@ -82,6 +82,8 @@ tls_keypair_set_cert_mem(struct tls_keypair *keypair, const uint8_t *cert,
 {
 	return set_mem(&keypair->cert_mem, &keypair->cert_len, cert, len);
 }
+
+void explicit_bzero(void *buf, size_t len);
 
 static int
 tls_keypair_set_key_file(struct tls_keypair *keypair, struct tls_error *error,

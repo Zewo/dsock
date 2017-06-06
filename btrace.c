@@ -37,7 +37,7 @@ static void *btrace_hquery(struct hvfs *hvfs, const void *type);
 static void btrace_hclose(struct hvfs *hvfs);
 static int btrace_bsendl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
-static int btrace_brecvl(struct bsock_vfs *bvfs,
+static ssize_t btrace_brecvl(struct bsock_vfs *bvfs,
     struct iolist *first, struct iolist *last, int64_t deadline);
 
 struct btrace_sock {
@@ -105,7 +105,7 @@ static int btrace_bsendl(struct bsock_vfs *bvfs,
     return bsendl(obj->s, first, last, deadline);
 }
 
-static int btrace_brecvl(struct bsock_vfs *bvfs,
+static ssize_t btrace_brecvl(struct bsock_vfs *bvfs,
       struct iolist *first, struct iolist *last, int64_t deadline) {
     struct btrace_sock *obj = dsock_cont(bvfs, struct btrace_sock, bvfs);
     int rc = brecvl(obj->s, first, last, deadline);

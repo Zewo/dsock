@@ -22,8 +22,6 @@
 
 */
 
-#if defined HAVE_TLS
-
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -50,8 +48,8 @@ coroutine void client(int port) {
 
     char buf[3];
     printf("recving\n");
-    rc = brecv(tcs, buf, sizeof(buf), -1);
-    assert(rc == 0);
+    ssize_t sz = brecv(tcs, buf, sizeof(buf), -1);
+    assert(sz == 3);
     assert(buf[0] == 'A' && buf[1] == 'B' && buf[2] == 'C');
 
     rc = bsend(tcs, "456", 3, -1);
@@ -112,18 +110,18 @@ int main() {
 
     /* Test deadline. */
     int64_t deadline = now() + 30;
-    rc = brecv(tas, buf, sizeof(buf), deadline);
-    assert(rc == -1 && errno == ETIMEDOUT);
+    ssize_t sz = brecv(tas, buf, sizeof(buf), deadline);
+    assert(sz == -1 && errno == ETIMEDOUT);
     int64_t diff = now() - deadline;
     assert(diff > -20 && diff < 20);
 
     printf("sending\n");
     rc = bsend(tas, "ABC", 3, -1);
     assert(rc == 0);
-    rc = brecv(tas, buf, 2, -1);
-    assert(rc == 0);
-    rc = brecv(tas, buf, sizeof(buf), -1);
-    assert(rc == -1 && errno == ECONNRESET);
+    sz = brecv(tas, buf, 3, -1);
+    assert(sz == 3);
+    sz = brecv(tas, buf, sizeof(buf), -1);
+    assert(sz == -1 && errno == ECONNRESET);
 
     rc = hclose(tas);
     assert(rc == 0);
@@ -157,12 +155,3 @@ int main() {
 
     return 0;
 }
-
-#else
-
-int main(void) {
-    return 0;
-}
-
-#endif
-

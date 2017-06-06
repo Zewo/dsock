@@ -20,7 +20,7 @@
 
 #include <openssl/x509.h>
 
-#include <tls.h>
+#include "tls.h"
 #include "tls_internal.h"
 
 const char *

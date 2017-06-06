@@ -24,17 +24,22 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <ctype.h>
+
+int SSL_CTX_load_verify_locations(SSL_CTX *ctx, const char *CAfile,
+                                  const char *CApath);
 
 int SSL_CTX_load_verify_mem(SSL_CTX *ctx, void *buf, int len)
 {
     char fname[] = "/tmp/dsockcompatXXXXXX";
     int rc;
-    int fd;
 #ifdef HAVE_MKSTEMP
+    int fd;
     fd = mkstemp(fname);
 #else
     const char *tmp_fname = mktemp(fname);
     int fd;
+    
     if(tmp_fname) {
         fd = open(tmp_fname, O_EXCL | O_WRONLY | O_SYNC, S_IRUSR | S_IWUSR);
     } else {
