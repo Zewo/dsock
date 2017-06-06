@@ -6,6 +6,8 @@ os:
   - osx
   - linux
 
+dist: trusty
+
 env:
   matrix:
    - CONF="shared"
