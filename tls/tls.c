@@ -549,6 +549,10 @@ tls_read(struct tls *ctx, void *buf, size_t buflen)
 		rv = (ssize_t)ssl_ret;
 		goto out;
 	}
+    
+    if (ssl_ret == 0)
+        return 0;
+    
 	rv = (ssize_t)tls_ssl_error(ctx, ctx->ssl_conn, ssl_ret, "read");
 
  out:
