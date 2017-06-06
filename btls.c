@@ -201,7 +201,7 @@ static ssize_t btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
            and read it directly into user's buffer. */
         if(len >= sizeof(rxbuf->data)) {
             ssize_t sz = btls_conn_get(obj, buf + pos, len, 0, deadline);
-            if(dsock_slow(sz < 0)) return -1;
+            if(dsock_slow(sz <= 0)) return -1;
             read += sz;
             return read;
         }
@@ -209,7 +209,7 @@ static ssize_t btls_conn_brecv(struct btls_conn *obj, void *buf, size_t len,
         dsock_assert(rxbuf->len == rxbuf->pos);
         ssize_t sz = btls_conn_get(obj, rxbuf->data, sizeof(rxbuf->data), 0,
             deadline);
-        if(dsock_slow(sz < 0)) return -1;
+        if(dsock_slow(sz <= 0)) return -1;
         rxbuf->len = sz;
         rxbuf->pos = 0;
     }
