@@ -137,11 +137,11 @@ static ssize_t btls_conn_get(struct btls_conn *obj, void *buf, size_t len,
         else if(rc == TLS_WANT_POLLOUT)
             rc = fdout(obj->fd, deadline);
         else if(dsock_slow(rc < 0)) {
-            printf("got error\n");
+            if (errno == 0)
+                errno = ECONNRESET;
             return -1;
         }
         else if(dsock_slow(rc == 0)) {
-            printf("got eof\n");
             errno = ECONNRESET;
             return -1;
         } else if(dsock_fast(rc == len))
