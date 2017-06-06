@@ -121,6 +121,7 @@ int main() {
     sz = brecv(tas, buf, 3, -1);
     assert(sz == 3);
     sz = brecv(tas, buf, sizeof(buf), -1);
+    printf("%i %i\n", sz, errno);
     assert(sz == -1 && errno == ECONNRESET);
 
     rc = hclose(tas);
